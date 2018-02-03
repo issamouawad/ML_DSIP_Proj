@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{da0c7be4-1837-40ac-8c1f-e54182b8ed33}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>calculate_filtering_metrics.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId />
+    <InterpreterVersion />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="pairs.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="align\align_dataset_mtcnn.py" />
+    <Compile Include="align\detect_face.py" />
+    <Compile Include="align\__init__.py" />
+    <Compile Include="calculate_filtering_metrics.py" />
+    <Compile Include="classifier.py" />
+    <Compile Include="compare.py" />
+    <Compile Include="decode_msceleb_dataset.py" />
+    <Compile Include="download_and_extract.py" />
+    <Compile Include="facenet.py" />
+    <Compile Include="freeze_graph.py" />
+    <Compile Include="generative\calculate_attribute_vectors.py" />
+    <Compile Include="generative\calculate_dataset_normalization.py" />
+    <Compile Include="generative\models\dfc_vae.py" />
+    <Compile Include="generative\models\dfc_vae_large.py" />
+    <Compile Include="generative\models\dfc_vae_resnet.py" />
+    <Compile Include="generative\models\vae_base.py" />
+    <Compile Include="generative\models\__init__.py" />
+    <Compile Include="generative\modify_attribute.py" />
+    <Compile Include="generative\train_vae.py" />
+    <Compile Include="generative\__init__.py" />
+    <Compile Include="lfw.py" />
+    <Compile Include="models\inception_resnet_v1.py" />
+    <Compile Include="models\inception_resnet_v2.py" />
+    <Compile Include="models\squeezenet.py" />
+    <Compile Include="models\__init__.py" />
+    <Compile Include="train_softmax.py" />
+    <Compile Include="train_tripletloss.py" />
+    <Compile Include="validate_on_lfw.py" />
+    <Compile Include="__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="align" />
+    <Folder Include="generative" />
+    <Folder Include="generative\models" />
+    <Folder Include="models" />
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>
