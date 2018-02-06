@@ -14,13 +14,14 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_score
-
+from Classification.RLSClassifier import RLSClassifier
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn import neighbors
 from sklearn.model_selection import train_test_split
+from scipy.stats import chisquare
 
-def ClassifyKCrossValidation(x,y,num_splits=2,Classifier='svm',kernel='linear',poly_degree=3,params=[0.5,1,1.5],distance_metric='euclidean',use_dimentionality_reduction='false',dimentionality_reduction='lda',pca_components = 50):
+def ClassifyKCrossValidation(x,y,num_splits=2,Classifier='svm',kernel='linear',poly_degree=2,params=[0.5,1,1.5],distance_metric='euclidean',use_dimentionality_reduction='false',dimentionality_reduction='lda',pca_components = 50):
     """this function performs classification based on data matrix x and labels y.
     data (and labels) are split into train and test sets, then train set is split into train and validation sets based on k-fold leave out cross validation in order to choose the model parameters that yield the least classification error
     finally the model (with the chosen parameter) is tested with the test data
@@ -30,14 +31,18 @@ def ClassifyKCrossValidation(x,y,num_splits=2,Classifier='svm',kernel='linear',p
         num_splits: number of splits used for performing k-fold holdout cross validation
         
         Classifier: the type of classifier model , default is svm.
-            possible values are svm, knn
+            possible values are svm, knn,rls
         kernel: kernel type of the classifier default is linear
-            possible values are linear, poly,rbf,sigmoid (only applicable with kernalized models)
-        poly_degree: degree of polynomial when used as a kernel 
-            default is 3
+            possible values are     
+                knn: N/A
+                rls: linear, gaussian, poly
+                svm, linear, rbf, poly, sigmoid
+        kernel_param: additional parameter used for some kernels(default is 2)
+            poly: polynomial degree
+            gaussian: sigma
         params: array of parameters of the classifier model
             integers in case of knn representing parameter k , (usually an odd number)
-            real numbers in case of other methods
+            real numbers in case of other methods representing the regularizer
         distance_metric: distance metric to use in knn classifier , default is euclidean
             possible values are manhattan,euclidean
         use_dimentionality_reduction: 'true' or 'false' 
@@ -113,6 +118,27 @@ def ClassifySimple(xtr,ytr,xts,param,Classifier='svm',kernel='linear',poly_degre
         model = svm.SVC(kernel=kernel,degree=3,C=param)
     if(Classifier=='knn'):
         model = neighbors.KNeighborsClassifier(param,metric=distance_metric)
+    if(Classifier =='RLS'):
+        model = RLSClassifier(param,kernel)
+        #model = neighbors.KNeighborsClassifier(param, metric='pyfunc', metric_params={"func":histogram_intersection})
     model.fit(xtr,ytr)
     
     return model.predict(xts)
+def chisquare_distance(a,b):
+    c,p =  chisquare(a,b)
+    print(p)
+    return c
+def kullback_leibler_divergence(p, q):
+    p = np.asarray(p)
+    q = np.asarray(q)
+    filt = np.logical_and(p != 0, q != 0)
+    dist= np.sum(p[filt] * np.log2(p[filt] / q[filt]))
+    return dist
+def histogram_intersection(h1, h2):
+   
+    sm = 0
+    for i in range(len(h1)):
+        sm += min(h1[i],h2[i])
+    return 1-sm
+
+        

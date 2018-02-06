@@ -45,16 +45,12 @@ from os.path import isfile, join
 
 
 
-def EvaluateCNN(path):
+def EvaluateCNN(path,model_path):
   
     with tf.Graph().as_default():
       
         with tf.Session() as sess:
             
-            
-            #paths=[join(path, f) for f in listdir(path) if isfile(join(path, f))]
-            #print(paths)
-            # Load the model
             
             curDir = os.path.dirname(__file__)
             paths = []
@@ -70,7 +66,7 @@ def EvaluateCNN(path):
                             
             
             classes = np.asarray(classes)
-            cnn.facenet.load_model(curDir+'\\models\\20170512-110547.pb')
+            cnn.facenet.load_model(model_path)
             
             # Get input and output tensors
             images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
