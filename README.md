@@ -11,4 +11,4 @@ the notebook LatestVersion contains code snippets to call the main functions of 
 It's possible to use any cropped dataset, the datasets I have used are:
 - AT&T(ORL Dataset) available here: http://www.cl.cam.ac.uk/Research/DTG/attarchive/pub/data/att_faces.zip
 - Yale Dataset
-LFW available here:http://vis-www.cs.umass.edu/lfw/
+- LFW available here:http://vis-www.cs.umass.edu/lfw/
