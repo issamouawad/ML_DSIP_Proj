@@ -5,6 +5,7 @@ Created on Sun Feb  4 18:43:22 2018
 @author: IssaMawad
 """
 import numpy as np
+from scipy.spatial import distance_matrix
 class RLSClassifier:
     """
     This Class Represents a Regularized-Kernelized Least square multi-class classifier
@@ -37,12 +38,17 @@ class RLSClassifier:
         d = x.shape[1]
         for i in range(target_names.shape[0]):
             reshapedY[np.where(y==target_names[i]),i]=1
+        if(self.kernel=='linear'):
+            diagonal = np.dot(np.transpose(x),x)
+            toInvert = diagonal + self.param*n*np.eye(d,d);
+            inverted = np.linalg.inv(toInvert)
+            self.w = np.dot(np.dot(inverted,np.transpose(x)),reshapedY)
+        else:
+            diagonal = self.kern(x,x)
+            toInvert = diagonal + self.param*n*np.eye(n,n);
             
-        diagonal = np.dot(np.transpose(x),x)
-        toInvert = diagonal + self.param*n*np.eye(d,d);
-        inverted = np.linalg.inv(toInvert)
-        self.w = np.dot(np.dot(inverted,np.transpose(x)),reshapedY)
-            
+            self.w = np.dot(toInvert,reshapedY)
+        self.train = x
     
     def predict(self,x):
         """
@@ -50,7 +56,18 @@ class RLSClassifier:
         you must call this function only when you've already called fit.
         in case of kernelized classification, the training data are stored and used to compute the inner products with the test data
         """
-        mul = np.dot(x,self.w)
+        if(self.kernel == 'linear'):
+            mul = np.dot(x,self.w)
+        else:
+            mul = np.dot(self.kern(x,self.train),self.w)
         indices = np.argmax(mul,1)
         
         return self.target_names[indices]
+    
+    def kern(self,x1,x2):
+        if(self.kernel=='poly'):
+            return (1+np.dot(x1,np.transpose(x2)))**self.param
+        if(self.kernel=='gaussian'):
+            return np.exp(-1/(2*self.param **2) *distance_matrix(x1,x2) )
+        
+        

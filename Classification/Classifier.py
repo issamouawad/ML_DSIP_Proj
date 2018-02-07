@@ -21,14 +21,14 @@ from sklearn import neighbors
 from sklearn.model_selection import train_test_split
 from scipy.stats import chisquare
 
-def ClassifyKCrossValidation(x,y,num_splits=2,Classifier='svm',kernel='linear',poly_degree=2,params=[0.5,1,1.5],distance_metric='euclidean',use_dimentionality_reduction='false',dimentionality_reduction='lda',pca_components = 50):
+def ClassifyKCrossValidation(x,y,train_size=0.75,test_size=0.25,num_splits=2,Classifier='svm',kernel='linear',poly_degree=2,params=[0.5,1,1.5],distance_metric='euclidean',use_dimentionality_reduction='false',dimentionality_reduction='lda',pca_components = 50):
     """this function performs classification based on data matrix x and labels y.
     data (and labels) are split into train and test sets, then train set is split into train and validation sets based on k-fold leave out cross validation in order to choose the model parameters that yield the least classification error
     finally the model (with the chosen parameter) is tested with the test data
     Args:
         x: The data matrix n_samples rows X n_variables columns
         y: labels of the data n_samples label
-        num_splits: number of splits used for performing k-fold holdout cross validation
+        num_splits: number of splits used for performing k-fold cross validation
         
         Classifier: the type of classifier model , default is svm.
             possible values are svm, knn,rls
@@ -54,9 +54,9 @@ def ClassifyKCrossValidation(x,y,num_splits=2,Classifier='svm',kernel='linear',p
         prints the classification report
     
     """
-    skf = StratifiedKFold(n_splits=num_splits)
+    
    
-    X_train, X_test, y_train, y_test = train_test_split(x,y,stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(x,y,stratify=y,train_size=train_size, test_size=test_size)
     
     globalScore = np.zeros(len(params))
     score_max=0
@@ -65,6 +65,7 @@ def ClassifyKCrossValidation(x,y,num_splits=2,Classifier='svm',kernel='linear',p
     singleRunScore = np.zeros(num_splits)
     target_names = np.unique(y)
     
+    skf = StratifiedKFold(n_splits=num_splits)
     
     for j in range(len(params)):
         split = 0
@@ -78,21 +79,27 @@ def ClassifyKCrossValidation(x,y,num_splits=2,Classifier='svm',kernel='linear',p
             
             p =precision_score(yval,out,average='micro')
             
-            print(classification_report(yval, out, target_names=target_names))
+            print('using parameter = '+str(params[j])+', fold  accuracy is ' + str(p))
+            
             singleRunScore[split] = p
             split = split+1
         
         globalScore[j] = np.mean(singleRunScore)
-        print('mean error for parameter '+str(j)+' is '+ str(globalScore[j]))
+        print('mean accuracy for parameter '+str(params[j])+' is '+ str(globalScore[j]))
         if(globalScore[j]>=score_max):
             score_max = globalScore[j]
             j_max = j
-    print('using test data:')
-    print(j_max)
+    fig = plt.figure()
+    plt.plot(params,globalScore)
+    fig.suptitle('Average Accuracy for Each Parameter')
+    plt.xlabel('Parameter Value')
+    plt.ylabel('Accuracy %')
+    print('training the model on all the training set using parameter=' + str(params[j_max]))
+    
     
     test_out = ClassifySimple(X_train,y_train,X_test,params[j_max],Classifier,kernel,poly_degree,distance_metric,use_dimentionality_reduction,dimentionality_reduction,pca_components )
     print(classification_report(y_test, test_out, target_names=target_names))             
-    plt.plot(params,globalScore)
+    
     
 def ClassifySimple(xtr,ytr,xts,param,Classifier='svm',kernel='linear',poly_degree=3,distance_metric='euclidean',use_dimentionality_reduction='false',dimentionality_reduction='lda',components = 50):
     if(use_dimentionality_reduction=='true'):
