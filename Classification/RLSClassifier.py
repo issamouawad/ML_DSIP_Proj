@@ -52,7 +52,7 @@ class RLSClassifier:
     
     def predict(self,x):
         """
-        evaluates a test data x and predicts the labels of each inputby applying the weights already stored.
+        evaluates a test data x and predicts the labels of each input by applying the weights already stored.
         you must call this function only when you've already called fit.
         in case of kernelized classification, the training data are stored and used to compute the inner products with the test data
         """
