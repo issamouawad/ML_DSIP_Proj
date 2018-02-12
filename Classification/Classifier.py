@@ -37,14 +37,14 @@ def ClassifyKCrossValidation(x,y,train_size=0.75,test_size=0.25,num_splits=2,Cla
                 knn: N/A
                 rls: linear, gaussian, poly
                 svm, linear, rbf, poly, sigmoid
-        kernel_param: additional parameter used for some kernels(default is 2)
+        kernel_param: additional parameter used for some kernels(default is 1)
             poly: polynomial degree
             gaussian: sigma
         params: array of parameters of the classifier model
             integers in case of knn representing parameter k , (usually an odd number)
             real numbers in case of other methods representing the regularizer
         distance_metric: distance metric to use in knn classifier , default is euclidean
-            possible values are manhattan,euclidean
+            possible values are manhattan,euclidean, and histogram_intersection, kld (for Kullback-Leibler divergence)
         use_dimentionality_reduction: 'true' or 'false' 
         dimentionality_reduction: the method to use for dimensionality reduction , default is 'pca'
         possible values are: 'pca','lda','both' (in both , first pca is computed then lda)
@@ -129,28 +129,29 @@ def ClassifySimple(xtr,ytr,xts,param,Classifier='svm',kernel='linear',kernel_par
         else:
             model = svm.SVC(kernel=kernel,gamma=kernel_param,C=param)
     if(Classifier=='knn'):
-        model = neighbors.KNeighborsClassifier(param,metric=distance_metric)
-    if(Classifier =='RLS'):
+        if(distance_metric=='histogram_intersection'):
+            model = neighbors.KNeighborsClassifier(param, metric='pyfunc', metric_params={"func":histogram_intersection})
+        if(distance_metric=='kld'):
+        else:
+            model = neighbors.KNeighborsClassifier(param, metric='pyfunc', metric_params={"func":kullback_leibler_divergence})
+    if(Classifier =='rls'):
         model = RLSClassifier(param,kernel,kernel_param= kernel_param)
         #model = neighbors.KNeighborsClassifier(param, metric='pyfunc', metric_params={"func":histogram_intersection})
     model.fit(xtr,ytr)
     
     return model.predict(xts)
-def chisquare_distance(a,b):
-    c,p =  chisquare(a,b)
-    print(p)
-    return c
+
+def histogram_intersection(h1, h2):
+   
+    sm = 0
+    for i in range(len(h1)):
+        sm += min(h1[i],h2[i])
+    return sm
+
 def kullback_leibler_divergence(p, q):
     p = np.asarray(p)
     q = np.asarray(q)
     filt = np.logical_and(p != 0, q != 0)
     dist= np.sum(p[filt] * np.log2(p[filt] / q[filt]))
     return dist
-def histogram_intersection(h1, h2):
-   
-    sm = 0
-    for i in range(len(h1)):
-        sm += min(h1[i],h2[i])
-    return 1-sm
-
         
