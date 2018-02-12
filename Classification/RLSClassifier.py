@@ -12,7 +12,7 @@ class RLSClassifier:
     based on single vs all classification to support multi-class classifications , and regularized by lambda
     
     """
-    def __init__(self, param, kernel='linear', kernel_parameter=1):
+    def __init__(self, param, kernel='linear', kernel_param=1):
         """
         declares a new object of the class constructed with 
         param: the regularization parameter lambda 
@@ -24,7 +24,7 @@ class RLSClassifier:
         """
         self.param = param
         self.kernel = kernel
-        
+        self.kernel_param=kernel_param
         
     def fit(self, x,y):
         """
@@ -52,7 +52,7 @@ class RLSClassifier:
     
     def predict(self,x):
         """
-        evaluates a test data x and predicts the labels of each input by applying the weights already stored.
+        evaluates a test data x and predicts the labels of each inputby applying the weights already stored.
         you must call this function only when you've already called fit.
         in case of kernelized classification, the training data are stored and used to compute the inner products with the test data
         """
@@ -66,8 +66,8 @@ class RLSClassifier:
     
     def kern(self,x1,x2):
         if(self.kernel=='poly'):
-            return (1+np.dot(x1,np.transpose(x2)))**self.param
+            return (1+np.dot(x1,np.transpose(x2)))**self.kernel_param
         if(self.kernel=='gaussian'):
-            return np.exp(-1/(2*self.param **2) *distance_matrix(x1,x2) )
+            return np.exp(-1/(2*self.kernel_param **2) *distance_matrix(x1,x2) )
         
         

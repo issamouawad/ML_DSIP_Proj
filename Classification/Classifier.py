@@ -21,7 +21,7 @@ from sklearn import neighbors
 from sklearn.model_selection import train_test_split
 from scipy.stats import chisquare
 
-def ClassifyKCrossValidation(x,y,train_size=0.75,test_size=0.25,num_splits=2,Classifier='svm',kernel='linear',poly_degree=2,params=[0.5,1,1.5],distance_metric='euclidean',use_dimentionality_reduction='false',dimentionality_reduction='lda',pca_components = 50):
+def ClassifyKCrossValidation(x,y,train_size=0.75,test_size=0.25,num_splits=2,Classifier='svm',kernel='linear',kernel_param=1,params=[0.5,1,1.5],distance_metric='euclidean',use_dimentionality_reduction='false',dimentionality_reduction='lda',pca_components = 50):
     """this function performs classification based on data matrix x and labels y.
     data (and labels) are split into train and test sets, then train set is split into train and validation sets based on k-fold leave out cross validation in order to choose the model parameters that yield the least classification error
     finally the model (with the chosen parameter) is tested with the test data
@@ -75,7 +75,7 @@ def ClassifyKCrossValidation(x,y,train_size=0.75,test_size=0.25,num_splits=2,Cla
             ytr = y_train[train]
             xval = X_train[val]
             yval = y_train[val]
-            out = ClassifySimple(xtr,ytr,xval,params[j],Classifier,kernel,poly_degree,distance_metric,use_dimentionality_reduction,dimentionality_reduction,pca_components)
+            out = ClassifySimple(xtr,ytr,xval,params[j],Classifier,kernel,kernel_param,distance_metric,use_dimentionality_reduction,dimentionality_reduction,pca_components)
             
             p =precision_score(yval,out,average='micro')
             
@@ -97,14 +97,16 @@ def ClassifyKCrossValidation(x,y,train_size=0.75,test_size=0.25,num_splits=2,Cla
     print('training the model on all the training set using parameter=' + str(params[j_max]))
     
     
-    test_out = ClassifySimple(X_train,y_train,X_test,params[j_max],Classifier,kernel,poly_degree,distance_metric,use_dimentionality_reduction,dimentionality_reduction,pca_components )
+    test_out = ClassifySimple(X_train,y_train,X_test,params[j_max],Classifier,kernel,kernel_param,distance_metric,use_dimentionality_reduction,dimentionality_reduction,pca_components )
     print(classification_report(y_test, test_out, target_names=target_names))             
     
     
-def ClassifySimple(xtr,ytr,xts,param,Classifier='svm',kernel='linear',poly_degree=3,distance_metric='euclidean',use_dimentionality_reduction='false',dimentionality_reduction='lda',components = 50):
+def ClassifySimple(xtr,ytr,xts,param,Classifier='svm',kernel='linear',kernel_param=1,distance_metric='euclidean',use_dimentionality_reduction='false',dimentionality_reduction='lda',components = 50):
     if(use_dimentionality_reduction=='true'):
+                lda_components = np.unique(ytr).shape[0]
+               
                 if(dimentionality_reduction == 'lda'):
-                    lda = LinearDiscriminantAnalysis(n_components=components).fit(xtr,ytr)
+                    lda = LinearDiscriminantAnalysis(n_components=lda_components).fit(xtr,ytr)
                     xtr = lda.transform(xtr)
                     xts = lda.transform(xts)
                 else:
@@ -117,16 +119,19 @@ def ClassifySimple(xtr,ytr,xts,param,Classifier='svm',kernel='linear',poly_degre
                             pca = PCA(components).fit(xtr)
                             xtr = pca.transform(xtr)
                             xts = pca.transform(xts)
-                            lda = LinearDiscriminantAnalysis(n_components=components).fit(xtr,ytr)
+                            lda = LinearDiscriminantAnalysis(n_components=lda_components).fit(xtr,ytr)
                             xtr = lda.transform(xtr)
                             xts = lda.transform(xts)
                             
     if(Classifier=='svm'):
-        model = svm.SVC(kernel=kernel,degree=3,C=param)
+        if(kernel=='poly'):
+            model = svm.SVC(kernel=kernel,degree=kernel_param,C=param)
+        else:
+            model = svm.SVC(kernel=kernel,gamma=kernel_param,C=param)
     if(Classifier=='knn'):
         model = neighbors.KNeighborsClassifier(param,metric=distance_metric)
     if(Classifier =='RLS'):
-        model = RLSClassifier(param,kernel)
+        model = RLSClassifier(param,kernel,kernel_param= kernel_param)
         #model = neighbors.KNeighborsClassifier(param, metric='pyfunc', metric_params={"func":histogram_intersection})
     model.fit(xtr,ytr)
     
