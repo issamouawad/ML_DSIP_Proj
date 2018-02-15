@@ -46,6 +46,16 @@ from os.path import isfile, join
 
 
 def EvaluateCNN(path,model_path):
+    """
+    Feeds the images stored in a specified path to the FaceNet CNN using the specified weights
+  
+    arguments: 
+        path: the directory to look in, it is expected the each class of faces has a sub-directory, and images are resized to 160x160
+        model_path: the path of the parameters model to configure the network with
+        returns:
+            x: nx128 embeddings extracted from n images
+            y: the labels (classes) of images, the sub-directory name is used as a class name
+    """
   
     with tf.Graph().as_default():
       

@@ -4,10 +4,10 @@ Created on Sat Jan 27 16:29:12 2018
 
 @author: IssaMawad
 """
-from skimage import data,exposure
+from skimage import data
 import scipy.misc
 import dlib
-import matplotlib.pyplot as plt
+
 import os;
 def align(inputpath,outputpath,imgExt='pgm'):
     """
@@ -29,28 +29,28 @@ def align(inputpath,outputpath,imgExt='pgm'):
         for dir in dirs:
             dirFull = os.path.join(inputpath,dir)
             dirToMake = os.path.join(outputpath,dir)
-            print(dirToMake)
+            
             if not os.path.exists(dirToMake):
                 os.makedirs(dirToMake)
             index=0
             for innerSubDir,innerDirs,innerFiles in os.walk(dirFull):
-                print(len(innerFiles))
+                
                 if(len(innerFiles)==1):
                     continue;
                 for file in innerFiles:
-                    print(file)
+                    
                     if(not file.endswith(imgExt)):
                         continue;
                     fullFile = os.path.join(dirFull,file)
-                    print(fullFile)
+                    
                     img = data.imread(fullFile)
-                    plt.imshow(img)
+                    
                     dets = detector(img,1)
                     for i, d in enumerate(dets):
-                        print(d)
+                     
                         x = img[d.top():d.bottom(),d.left():d.right()]
                         imgNewPath = dirToMake+'\\'+str(index)+'.'+imgExt
-                        print(imgNewPath)
+                        
                         if not os.path.exists(imgNewPath):
                             try:
                                 scipy.misc.imsave(imgNewPath, x)

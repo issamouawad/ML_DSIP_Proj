@@ -76,7 +76,7 @@ def ClassifyKCrossValidation(x,y,train_size=0.75,test_size=0.25,num_splits=2,Cla
             xval = X_train[val]
             yval = y_train[val]
             out = ClassifySimple(xtr,ytr,xval,params[j],Classifier,kernel,kernel_param,distance_metric,use_dimentionality_reduction,dimentionality_reduction,pca_components)
-            
+            print(classification_report(yval,out, target_names=target_names)) 
             p =precision_score(yval,out,average='micro')
             
             print('using parameter = '+str(params[j])+', fold  accuracy is ' + str(p))
@@ -132,11 +132,12 @@ def ClassifySimple(xtr,ytr,xts,param,Classifier='svm',kernel='linear',kernel_par
         if(distance_metric=='histogram_intersection'):
             model = neighbors.KNeighborsClassifier(param, metric='pyfunc', metric_params={"func":histogram_intersection})
         if(distance_metric=='kld'):
-        else:
             model = neighbors.KNeighborsClassifier(param, metric='pyfunc', metric_params={"func":kullback_leibler_divergence})
+        else:
+            model = neighbors.KNeighborsClassifier(param, metric=distance_metric)
     if(Classifier =='rls'):
         model = RLSClassifier(param,kernel,kernel_param= kernel_param)
-        #model = neighbors.KNeighborsClassifier(param, metric='pyfunc', metric_params={"func":histogram_intersection})
+        
     model.fit(xtr,ytr)
     
     return model.predict(xts)
