@@ -76,7 +76,7 @@ def ClassifyKCrossValidation(x,y,train_size=0.75,test_size=0.25,num_splits=2,Cla
             xval = X_train[val]
             yval = y_train[val]
             out = ClassifySimple(xtr,ytr,xval,params[j],Classifier,kernel,kernel_param,distance_metric,use_dimentionality_reduction,dimentionality_reduction,pca_components)
-            print(classification_report(yval,out, target_names=target_names)) 
+            #print(classification_report(yval,out, target_names=target_names)) 
             p =precision_score(yval,out,average='micro')
             
             print('using parameter = '+str(params[j])+', fold  accuracy is ' + str(p))
